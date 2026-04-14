@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Order Page</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)),
+              url("r.jpg");
+  background-size: cover;
+  color: white;
+}
+
+/* ITEMS */
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 50px;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 240px;
+  background: rgba(44, 62, 80, 0.85);
+  border-radius: 25px;
+  text-align: center;
+  padding: 80px 25px 25px; /* 🔥 FIXED */
+  position: relative;
+}
+
+/* IMAGE FIX */
+.card img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: absolute;
+  top: -65px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid white;
+}
+
+/* TEXT FIX */
+.card h3 {
+  margin-top: 10px;
+}
+
+/* SUMMARY */
+.summary {
+  width: 320px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  background: rgba(0,0,0,0.6);
+}
+
+.summary h2 {
+  color: orange;
+}
+
+/* TIMER */
+#liveTimer {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 10px;
+  color: #ffcc70;
+}
+
+/* BUTTONS */
+.clear-btn, .pay-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  margin: 8px;
+}
+
+/* CLEAR */
+.clear-btn {
+  background: linear-gradient(45deg, #ff4b2b, #ff416c);
+}
+
+/* PAYMENT */
+.pay-btn {
+  background: linear-gradient(45deg, #28a745, #5cd65c);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="orderList"></div>
+
+<div class="summary" id="summary"></div>
+
+<div id="liveTimer"></div>
+
+<div style="text-align:center;">
+  <button class="clear-btn" onclick="clearOrder()">Clear Order</button>
+  <br>
+  <button class="pay-btn" onclick="goToPayment()">Proceed to Payment</button>
+</div>
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+let orderList = document.getElementById("orderList");
+let summary = document.getElementById("summary");
+let liveTimer = document.getElementById("liveTimer");
+
+let kitchenTime = 2;
+
+function displayCart() {
+
+  orderList.innerHTML = "";
+
+  let subtotal = 0;
+  let totalTime = 0;
+
+  cart.forEach((item, index) => {
+
+    if (!item.quantity) item.quantity = 1;
+
+    subtotal += item.price * item.quantity;
+    totalTime += item.time * item.quantity;
+
+    let card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${item.img}">
+      <h3>${item.name}</h3>
+      <p>⏱ ${item.time} min</p>
+      <p>💰 ₹${item.price}</p>
+
+      <div>
+        <button onclick="decreaseQty(${index})">-</button>
+        <span>${item.quantity}</span>
+        <button onclick="increaseQty(${index})">+</button>
+      </div>
+
+      <button onclick="removeItem(${index})">Remove</button>
+    `;
+
+    orderList.appendChild(card);
+  });
+
+  let gst = subtotal * 0.18;
+  let finalTotal = subtotal + gst;
+  let finalTime = kitchenTime + totalTime;
+
+  summary.innerHTML = `
+    <h2>Order Summary</h2>
+    <p>Total Time: ${totalTime} min</p>
+    <p>Kitchen Time: ${kitchenTime} min</p>
+    <p>Final Time: ${finalTime} min</p>
+    <p>Subtotal: ₹${subtotal}</p>
+    <p>GST (18%): ₹${gst.toFixed(2)}</p>
+    <p><strong>Total Amount: ₹${finalTotal.toFixed(2)}</strong></p>
+  `;
+
+  startTimer(finalTime);
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// ➕
+function increaseQty(index) {
+  cart[index].quantity++;
+  displayCart();
+}
+
+// ➖
+function decreaseQty(index) {
+  if (cart[index].quantity > 1) {
+    cart[index].quantity--;
+  } else {
+    cart.splice(index, 1);
+  }
+  displayCart();
+}
+
+// ❌
+function removeItem(index) {
+  cart.splice(index, 1);
+  displayCart();
+}
+
+// 🧹
+function clearOrder() {
+  if (confirm("Clear your order?")) {
+    localStorage.removeItem("cart");
+    location.reload();
+  }
+}
+
+// 💳
+async function goToPayment() {
+
+  if (cart.length === 0) {
+    alert("Cart is empty!");
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  let subtotal = 0;
+  let totalTime = 0;
+
+  cart.forEach(item => {
+    subtotal += item.price * item.quantity;
+    totalTime += item.time * item.quantity;
+  });
+
+  const gst = subtotal * 0.18;
+  const totalAmount = subtotal + gst;
+
+  try {
+    const res = await fetch("http://localhost:5000/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userEmail: user.email,
+        items: cart,
+        totalAmount,
+        totalTime
+      })
+    });
+
+    const data = await res.json();
+
+    alert(data.message);
+
+    window.location.href = "payment.html";
+
+  } catch (err) {
+    alert("Server error");
+  }
+}
+// ⏳ TIMER
+function startTimer(finalTime) {
+
+  let totalSeconds = finalTime * 60;
+  let remainingTime = totalSeconds;
+
+  let timer = setInterval(() => {
+
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      liveTimer.innerHTML = "✅ Order Ready!";
+      return;
+    }
+
+    let min = Math.floor(remainingTime / 60);
+    let sec = remainingTime % 60;
+
+    liveTimer.innerHTML = `⏳ Time Remaining: ${min}m ${sec}s`;
+
+    remainingTime--;
+
+  }, 1000);
+}
+
+// INIT
+displayCart();
+
+</script>
+
+</body>
+</html>

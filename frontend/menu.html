@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>VegBite Menu</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Playfair+Display&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #e6e6e6;
+}
+
+.wrapper {
+  width: 90%;
+  margin: 40px auto;
+  border-radius: 30px;
+  overflow: hidden;
+  color: white;
+
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)),
+              url("r.jpg");
+  background-size: cover;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.logo {
+  color: orange;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links a {
+  color: white;
+  margin-left: 25px;
+  text-decoration: none;
+}
+
+.container {
+  padding: 40px 60px;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  color: orange;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 70px 0;
+}
+
+.section.reverse {
+  flex-direction: row-reverse;
+}
+
+.text {
+  width: 45%;
+}
+
+.text h2 {
+  color: #f5c27c;
+}
+
+.text p {
+  margin: 6px 0;
+}
+
+.image img {
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+
+button {
+  margin: 6px 0 12px 0;
+  padding: 6px 15px;
+  border: none;
+  background: orange;
+  color: white;
+  cursor: pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="navbar">
+  <div class="logo">🍔 VegBite</div>
+</div>
+
+<div class="container">
+
+<div class="title">Our Menu</div>
+
+<!-- 🍕 PIZZA -->
+<div class="section">
+  <div class="text">
+    <h2>Pizza</h2>
+
+    <p>Margherita Pizza ₹250</p>
+    <button onclick="orderItem('Margherita Pizza',10,250,'m.jpg')">Order</button>
+
+    <p>Farmhouse Pizza ₹300</p>
+    <button onclick="orderItem('Farmhouse Pizza',12,300,'f.jpg')">Order</button>
+
+    <p>Cheese Burst Pizza ₹350</p>
+    <button onclick="orderItem('Cheese Burst Pizza',15,350,'c.jpg')">Order</button>
+
+    <p>Veg Supreme ₹400</p>
+    <button onclick="orderItem('Veg Supreme',18,400,'s1.jpg')">Order</button>
+  </div>
+
+  <div class="image">
+    <img src="p1.png.jpg">
+  </div>
+</div>
+
+<!-- 🍔 BURGER -->
+<div class="section reverse">
+  <div class="text">
+    <h2>Burger</h2>
+
+    <p>Veg Burger ₹120</p>
+    <button onclick="orderItem('Veg Burger',5,120,'v.jpg')">Order</button>
+
+    <p>Cheese Burger ₹150</p>
+    <button onclick="orderItem('Cheese Burger',6,150,'Chees.jpg')">Order</button>
+
+    <p>Double Patty ₹180</p>
+    <button onclick="orderItem('Double Patty',8,180,'Double.jpg')">Order</button>
+
+    <p>Paneer Burger ₹200</p>
+    <button onclick="orderItem('Paneer Burger',9,200,'Paneer.jpg')">Order</button>
+  </div>
+
+  <div class="image">
+    <img src="b1.jpg.jpg">
+  </div>
+</div>
+
+<!-- 🥪 SANDWICH -->
+<div class="section">
+  <div class="text">
+    <h2>Sandwich</h2>
+
+    <p>Veg Sandwich ₹100</p>
+    <button onclick="orderItem('Veg Sandwich',7,100,'veg.jpg')">Order</button>
+
+    <p>Cheese Sandwich ₹120</p>
+    <button onclick="orderItem('Cheese Sandwich',6,120,'ch.jpg')">Order</button>
+
+    <p>Club Sandwich ₹150</p>
+    <button onclick="orderItem('Club Sandwich',9,150,'club.jpg')">Order</button>
+
+    <p>Grilled Sandwich ₹130</p>
+    <button onclick="orderItem('Grilled Sandwich',8,130,'grilled.jpg')">Order</button>
+  </div>
+
+  <div class="image">
+    <img src="s.jpg">
+  </div>
+</div>
+
+<!-- 🥤 DRINKS -->
+<div class="section reverse">
+  <div class="text">
+    <h2>Cold Drinks</h2>
+
+    <p>Coca Cola ₹50</p>
+    <button onclick="orderItem('Coca Cola',2,50,'coca.jpg')">Order</button>
+
+    <p>Cold Coffee ₹120</p>
+    <button onclick="orderItem('Cold Coffee',4,120,'cold.jpg')">Order</button>
+
+    <p>Mojito ₹100</p>
+    <button onclick="orderItem('Mojito',3,100,'mojito.jpg')">Order</button>
+
+    <p>Fresh Juice ₹140</p>
+    <button onclick="orderItem('Fresh Juice',5,140,'juice.jpg')">Order</button>
+  </div>
+
+  <div class="image">
+    <img src="c1.jpg">
+  </div>
+</div>
+
+</div>
+
+<div style="text-align:center; margin:20px;">
+  <button onclick="goToOrder()">View Order</button>
+</div>
+
+</div>
+
+
+
+<script>
+
+function orderItem(name, time, price, img) {
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  // 🔍 check if item already exists
+  let existing = cart.find(item => item.name === name);
+
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      name: name,
+      time: time,
+      price: price,
+      img: img,        // ✅ FIXED (use img, not image)
+      quantity: 1
+    });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  alert(name + " added to cart!");
+}
+
+function goToOrder() {
+  window.location.href = "order.html";
+}
+
+</script>
+
+</body>
+</html>

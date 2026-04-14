@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>VegBite Payment</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+
+  background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)),
+              url("r.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  color: white;
+}
+
+.container {
+  width: 85%;
+  margin: 50px auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+}
+
+.card {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  padding: 25px;
+  border-radius: 20px;
+}
+
+/* ORDER LIST */
+.item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.qty {
+  text-align: center;
+  opacity: 0.7;
+}
+
+.price {
+  text-align: right;
+  color: orange;
+  font-weight: bold;
+}
+
+.summary {
+  margin-top: 20px;
+}
+
+.summary p {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.total {
+  font-size: 20px;
+  color: orange;
+  font-weight: bold;
+}
+
+/* PAYMENT */
+
+.methods {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.method {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.method.active {
+  border: 2px solid orange;
+}
+
+.method img {
+  width: 35px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.qr {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.qr img {
+  width: 130px;
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(45deg, orange, #ff9900);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.empty {
+  text-align: center;
+  opacity: 0.6;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- ORDER -->
+  <div class="card">
+    <h2>Your Order</h2>
+
+    <div id="items"></div>
+
+    <div class="summary" id="summary"></div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="card">
+    <h2>Payment</h2>
+
+    <div class="methods">
+      <div class="method active" onclick="selectMethod(this,'gpay')">
+        <img src="https://img.icons8.com/color/48/google-pay.png">
+      </div>
+
+      <div class="method" onclick="selectMethod(this,'paytm')">
+        <img src="https://img.icons8.com/color/48/paytm.png">
+      </div>
+
+      <div class="method" onclick="selectMethod(this,'card')">
+        💳
+      </div>
+    </div>
+
+    <div id="form"></div>
+
+    <button class="pay-btn" onclick="payNow()">Pay Now</button>
+  </div>
+
+</div>
+
+<script>
+
+let cart = [];
+
+try {
+  cart = JSON.parse(localStorage.getItem("cart")) || [];
+} catch {
+  cart = [];
+}
+
+let itemsDiv = document.getElementById("items");
+let summaryDiv = document.getElementById("summary");
+
+let subtotal = 0;
+
+if(cart.length === 0){
+  itemsDiv.innerHTML = `<p class="empty">No items in cart</p>`;
+} else {
+
+  // HEADER ROW (IMPORTANT UI FIX)
+  itemsDiv.innerHTML = `
+    <div class="item" style="font-weight:600; opacity:0.8;">
+      <div>Item</div>
+      <div class="qty">Qty</div>
+      <div class="price">Price</div>
+    </div>
+  `;
+
+  cart.forEach(item => {
+
+    let qty = item.quantity || 1;
+    let totalItem = item.price * qty;
+    subtotal += totalItem;
+
+    itemsDiv.innerHTML += `
+      <div class="item">
+        <div class="item-name">${item.name}</div>
+        <div class="qty">${qty}</div>
+        <div class="price">₹${totalItem}</div>
+      </div>
+    `;
+  });
+}
+
+let gst = subtotal * 0.18;
+let total = subtotal + gst;
+
+summaryDiv.innerHTML = `
+  <p><span>Subtotal</span> <span>₹${subtotal}</span></p>
+  <p><span>GST (18%)</span> <span>₹${gst.toFixed(2)}</span></p>
+  <p class="total"><span>Total</span> <span>₹${total.toFixed(2)}</span></p>
+`;
+
+selectMethod(document.querySelector(".method.active"), "gpay");
+
+function selectMethod(el, type){
+
+  document.querySelectorAll(".method").forEach(m => m.classList.remove("active"));
+  el.classList.add("active");
+
+  let form = document.getElementById("form");
+
+  if(type === "gpay" || type === "paytm"){
+    form.innerHTML = `
+      <div class="qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=veg@upi">
+      </div>
+      <input placeholder="Enter UPI ID">
+    `;
+  } else {
+    form.innerHTML = `
+      <input placeholder="Cardholder Name">
+      <input placeholder="Card Number">
+      <input placeholder="Expiry Date">
+      <input placeholder="CVC">
+    `;
+  }
+}
+
+function payNow(){
+  if(cart.length === 0){
+    alert("Cart empty");
+    return;
+  }
+
+  alert("Payment Successful 🎉");
+  localStorage.removeItem("cart");
+  window.location.href = "home.html";
+}
+
+</script>
+
+</body>
+</html>

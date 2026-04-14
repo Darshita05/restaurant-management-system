@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>VegBite</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  color: white;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* PROFILE ICON */
+.user-circle {
+  width: 35px;
+  height: 35px;
+  background: #ff5c8d;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* PROFILE POPUP */
+.profile-card {
+  position: absolute;
+  top: 70px;
+  right: 40px;
+  width: 260px;
+  background: #2c1a14;
+  color: white;
+  border-radius: 15px;
+  padding: 20px;
+  display: none;
+}
+
+.big-circle {
+  width: 60px;
+  height: 60px;
+  background: #ff5c8d;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  font-size: 22px;
+}
+
+.profile-card h3 {
+  text-align: center;
+  margin: 10px 0 5px;
+}
+
+.profile-card p {
+  text-align: center;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.profile-card button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background: orange;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+              url("r.jpg") no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.hero button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: orange;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <h2>🍔 VegBite</h2>
+
+  <div class="nav-links">
+    <a onclick="goHome()">Home</a>
+    <a onclick="goMenu()">Menu</a>
+    <a>About</a>
+    <a>Contact</a>
+
+    <!-- PROFILE ICON -->
+    <div class="user-circle" id="userInitial"></div>
+  </div>
+</div>
+
+<!-- PROFILE POPUP -->
+<div class="profile-card" id="profileCard">
+  <div class="big-circle" id="bigInitial"></div>
+  <h3 id="fullName"></h3>
+  <p id="emailText"></p>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Where Taste Meets Elegance.</h1>
+  <button onclick="goMenu()">Explore Menu</button>
+</div>
+
+<script src="home.js" defer></script>
+
+</body>
+</html>
